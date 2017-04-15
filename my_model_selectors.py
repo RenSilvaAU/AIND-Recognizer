@@ -77,8 +77,25 @@ class SelectorBIC(ModelSelector):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection based on BIC scores
-        raise NotImplementedError
+    
 
+
+
+        best_num_components = self.min_n_components
+        best_bic = 0
+
+        for p in range (self.min_n_components,self.max_n_components):
+
+            base_model = self.base_model(p)
+
+            logL = base_model.score(self.X, self.lengths)
+
+            bic = -2 * logL + p * log(p)
+
+            if bic > best_bic:
+                best_bic, best_num_components = bic, p
+        
+        return self.base_model(best_num_components)
 
 class SelectorDIC(ModelSelector):
     ''' select best model based on Discriminative Information Criterion
@@ -105,4 +122,8 @@ class SelectorCV(ModelSelector):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection using CV
-        raise NotImplementedError
+        # raise NotImplementedError
+
+
+        best_num_components = self.n_constant
+        return self.base_model(best_num_components)
