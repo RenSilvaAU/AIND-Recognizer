@@ -130,10 +130,40 @@ class SelectorCV(ModelSelector):
 
         print('Number of sequences: {} '.format(len(self.sequences)))
 
+        best_model = None
+
+        best_num_components = self.min_n_components
+        best_logL = float('-inf')
+
         if len(self.sequences) > 2:
+
             for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
+
                 print("Train fold indices:{} Test fold indices:{}".format(cv_train_idx, cv_test_idx))  
-        else: 
-                print('Will use all {} sequences for training '.format(len(self.sequences)))            
+
+                # determine training set
+                X_train, lengths_train = combine_sequences(cv_train_idx, self.sequences)
+
+                # determine cross validation set
+                X_test, lengths_test = combine_sequences(cv_test_idx, self.sequences)
+
+
+                for num_states in range(self.min_n_components,self.max_n_components):
+
+
+                    hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(X_train, lengths_train)
+                    logL = hmm_model.score(X_test, lengths_test)
+
+                    if logL > best_logL:
+
+
+                        best_num_components, best_logL, best_model = num_states, logL, hmm_model
+
+
+                        print('Selected LogL {} , Num of steaes {} '.format(best_logL, best_num_components))
+
+
+        print('Selected {} '.format(best_num_components))
+        return best_model      
 
             
