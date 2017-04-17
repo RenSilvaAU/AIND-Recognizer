@@ -185,8 +185,7 @@ class SelectorDIC(ModelSelector):
             # KFold split method will only work for sequences of 2 or more samples
             for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
 
-                print("Train fold indices:{} Test fold indices:{}".format(cv_train_idx, cv_test_idx))  
-
+            
                 # determine training set
                 X_train, lengths_train = combine_sequences(cv_train_idx, self.sequences)
 
