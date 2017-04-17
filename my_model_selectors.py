@@ -190,6 +190,7 @@ class SelectorDIC(ModelSelector):
     '''
 
     def select(self):
+        
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection based on DIC scores
@@ -197,25 +198,40 @@ class SelectorDIC(ModelSelector):
         best_num_components = self.min_n_components
         best_dic = float('-inf')
 
+        logL_list = []
+
+        # first pass - get logL of each option
         for num_states in range(self.min_n_components,self.max_n_components):
 
             try:
                 # train model with training set
                 hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(self.X, self.lengths)
                 logL = hmm_model.score(self.X, self.lengths)
-                N = hmm_model.n_features
+                # N = hmm_model.n_features
 
                 # now calculate bic
-                dic = -2 * logL + num_states * np.log(N)
+                # dic = -2 * logL + num_states * np.log(N)
 
+                '''
                 if dic > best_dic:
                     # new set of best numbers
                     best_num_components, best_dic, best_model = num_states, dic, hmm_model
                     # print('Selected LogL {} , Num of steaes {} '.format(best_logL, best_num_components))
+                '''
+
+                logL_list.append((idx, num_states,logL))
+
             except Exception:
                 pass
 
-        
+        # now that I have a list of logs, calculate the DIC for each 
+
+        for i in range (0, len(logL_list) -1 ):
+
+            num_states, logL = logL_list[i]   
+
+            all_others = [logL for i,logL in enumerate(logL_list) if i!=3] 
+
         return best_model
 
 
