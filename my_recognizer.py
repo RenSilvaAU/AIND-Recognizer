@@ -21,15 +21,12 @@ def recognize(models: dict, test_set: SinglesData):
     probabilities = []
     guesses = []
 
-    print('\n\n*** one set')
-    print(' length of all sequences: {} '.format(len(test_set.get_all_sequences())))
-    print(' length of all Xlenghts: {} '.format(len(test_set.get_all_Xlengths())))
-    print(' length of all Word list: {} '.format(len(test_set.wordlist)))
-
     all_sequences = test_set.get_all_sequences()
     all_Xlenghts = test_set.get_all_Xlengths()
 
-    for i, test_word in zip( range(0,len(all_sequences) -1 ), test_set.wordlist):
+    print('Started recognizing ...')
+
+    for i, test_word in zip( range(0,len(all_sequences)  ), test_set.wordlist):
         # try to get the word based on GaussianHMM model
         # print('test word is: {} '.format(test_word))   
     
@@ -43,30 +40,66 @@ def recognize(models: dict, test_set: SinglesData):
 
             model = models[word]
 
-            #print('My Sequence {} '.format(all_sequences[i][0]))
-
-            # print('My X Lenght {} '.format(all_Xlenghts[i][1]))
-
             try: 
               logL = model.score(all_sequences[i][0],all_Xlenghts[i][1] )
 
               # print('Calculated {} '.format(logL))
 
-              myProbs.append([{ word : logL }])
+              myProbs.append({ word : logL })
+
               if logL > bestLogL:
                   bestLogL = logL
                   bestWord = word
 
             except Exception:
-              pass
- 
-        # print('Best guess for {} is {} with logL: {} '.format(test_word,bestWord,bestLogL))
 
-        guesses.append([bestWord])
-        probabilities.append([myProbs])
+              myProbs.append({ word : logL })
+    
+ 
+        guesses.append(bestWord)
+        probabilities.append(myProbs)
         
-    '''
-    for i in range(0, len(guesses) - 1):
-      print('guesses: {} '.format(guesses[i]))
-      print('probabilities: {} '.format(probabilities[i]))
-    '''
+    print('Finished analyzing {} words '.format(len(all_sequences)))
+
+    return probabilities, guesses
+
+def show_errors(guesses, test_set):
+
+  no_of_errors = 0
+  no_of_correct = 0
+  no_of_words = 0
+
+  header_printed = False
+
+  print('\n\nHey Ren, this is how good you are ....')
+
+  for guess, test in zip(guesses, test_set.wordlist):
+
+    no_of_words += 1
+
+    if (guess == test):
+      no_of_correct += 1
+    else:
+      if not header_printed:
+        print('\n*** These were the errors I found:')
+        header_printed = True
+
+      print('{} != {}'.format(guess,test))
+
+
+  print('===========================================')
+
+  perc_right = round(no_of_correct / no_of_words * 100,2)
+
+  comment = ''
+
+  if perc_right > 90:
+    comment = "Bloddy ledgend!"
+  elif perc_right > 70:
+    comment = "You rock"
+  elif perc_right > 50:
+    comment = "Get a grip, mate"
+  else:
+    comment = "You suck!"
+
+  print('Guessed right: {} out of {}  ({}%) - Guess what? {} '.format(no_of_correct,no_of_words,perc_right,comment))
