@@ -281,6 +281,7 @@ class SelectorCV(ModelSelector):
                     try:
                         # train model with training set
                         hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(X_train, lengths_train)
+
                         logL = hmm_model.score(X_test, lengths_test)
 
                         if logL > best_logL:
