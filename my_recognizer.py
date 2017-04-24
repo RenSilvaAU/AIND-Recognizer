@@ -45,7 +45,7 @@ def recognize(models: dict, test_set: SinglesData):
 
               # print('Calculated {} '.format(logL))
 
-              myProbs.append({ word : logL })
+              myProbs.append( word : logL )
 
               if logL > bestLogL:
                   bestLogL = logL
@@ -53,7 +53,7 @@ def recognize(models: dict, test_set: SinglesData):
 
             except Exception:
 
-              myProbs.append({ word : logL })
+              myProbs.append( word : logL )
     
  
         guesses.append(bestWord)
