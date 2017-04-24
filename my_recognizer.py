@@ -27,33 +27,28 @@ def recognize(models: dict, test_set: SinglesData):
     print('Started recognizing ...')
 
     for i, test_word in zip( range(0,len(all_sequences)  ), test_set.wordlist):
-        # try to get the word based on GaussianHMM model
-        # print('test word is: {} '.format(test_word))   
-    
-    
+
         bestLogL = float("-inf")
         bestWord = ''
 
-        myProbs = []
+        myProbs = {}
         
         for word in models.keys():
 
             model = models[word]
 
             try: 
+
               logL = model.score(all_sequences[i][0],all_Xlenghts[i][1] )
-
-              # print('Calculated {} '.format(logL))
-
-              myProbs.append( word : logL )
 
               if logL > bestLogL:
                   bestLogL = logL
                   bestWord = word
 
             except Exception:
-
-              myProbs.append( word : logL )
+              pass
+              
+            myProbs[word] = logL 
     
  
         guesses.append(bestWord)
