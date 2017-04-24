@@ -77,79 +77,38 @@ class SelectorBIC(ModelSelector):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection based on BIC scores - DONE!
-        split_method = KFold()
-
 
         best_model = None
         best_num_components = self.min_n_components
-        best_bic = float('-inf')
-
-        if len(self.sequences) > 2:
-
-            # KFold split method will only work for sequences of 2 or more samples
-            for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
-
-                # determine training set
-                X_train, lengths_train = combine_sequences(cv_train_idx, self.sequences)
-
-                # determine cross validation set
-                X_test, lengths_test = combine_sequences(cv_test_idx, self.sequences)
+        best_bic = float('+inf')
 
 
-                for num_states in range(self.min_n_components,self.max_n_components):
+        for num_states in range(self.min_n_components,self.max_n_components):
 
-                    try:
-                        # train model with training set
-                        hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(X_train, lengths_train)
-                        logL = hmm_model.score(X_test, lengths_test)
-                        N = hmm_model.n_features
+            try:
+                # train model with training set
+                hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(self.X, self.lengths)
+                logL = hmm_model.score(self.X, self.lengths)
 
-                        # now calculate bic
-                        bic = -2 * logL + num_states * np.log(N)
+                f = hmm_model.n_features
+                m = num_states # the same that was used in n_components
 
-                        if bic > best_bic:
+                p = m^2 + 2 * m * f - 1
 
-                            # new set of best numbers
-                            best_num_components, best_bic, best_model = num_states, bic, hmm_model
+                # now calculate bic
+                bic = -2 * logL + p * np.log(f)
 
-                    except Exception:
-                        # if it fails, it will try again with the next set of elements, or simply return an empty model
-                        pass
+                if bic < best_bic:
 
-        else:
+                    # new set of best numbers
+                    best_num_components, best_bic, best_model = num_states, bic, hmm_model
 
-            # determine training set ... first element
-            X_train, lengths_train = combine_sequences([0], self.sequences)
-
-            if len(self.sequences) == 2:
-                # determine cross validation set .... second element
-                X_test, lengths_test = combine_sequences([1], self.sequences)
-            else:
-                # we have no choice but use the same squence for validation and test
-                X_test, lengths_test = combine_sequences([0], self.sequences)
+            except Exception:
+                # if it fails, it will try again with the next set of elements, or simply return an empty model
+                pass
 
 
-            for num_states in range(self.min_n_components,self.max_n_components):
-
-                try:
-                    # train model with training set
-                    hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(X_train, lengths_train)
-                    logL = hmm_model.score(X_test, lengths_test)
-                    N = hmm_model.n_features
-
-                    # now calculate bic
-                    bic = -2 * logL + num_states * np.log(N)
-
-                    if bic > best_bic:
-
-                        # new set of best numbers
-                        best_num_components, best_bic, best_model = num_states, bic, hmm_model
-  
-                except Exception:
-                    # if it fails, will simply return a empty best model
-                    pass
-
-        return best_model    
+        return best_model 
 
 
 
@@ -167,7 +126,7 @@ class SelectorDIC(ModelSelector):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         # TODO implement model selection based on DIC scores - DONE!
-        split_method = KFold()
+        # split_method = KFold()
 
         best_model = None
         best_num_components = self.min_n_components
@@ -176,56 +135,20 @@ class SelectorDIC(ModelSelector):
         # store it for later use
         logL_list = []
 
-        if len(self.sequences) > 2:
-
-            # KFold split method will only work for sequences of 2 or more samples
-            for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
-
-            
-                # determine training set
-                X_train, lengths_train = combine_sequences(cv_train_idx, self.sequences)
-
-                # determine cross validation set
-                X_test, lengths_test = combine_sequences(cv_test_idx, self.sequences)
-
-                for num_states in range(self.min_n_components,self.max_n_components):
-
-                    try:
-                        # train model with training set
-                        hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(X_train, lengths_train)
-                        logL = hmm_model.score(X_test, lengths_test)
-
-                        logL_list.append((num_states, logL, hmm_model))
-
-                    except Exception:
-                        # if it fails, it will try again with the next set of elements, or simply return an empty model
-                        pass
-
-        else:
-
-            # determine training set ... first element
-            X_train, lengths_train = combine_sequences([0], self.sequences)
-
-            if len(self.sequences) == 2:
-                # determine cross validation set .... second element
-                X_test, lengths_test = combine_sequences([1], self.sequences)
-            else:
-                # we have no choice but use the same squence for validation and test
-                X_test, lengths_test = combine_sequences([0], self.sequences)
 
 
-            for num_states in range(self.min_n_components,self.max_n_components):
+        for num_states in range(self.min_n_components,self.max_n_components):
 
-                try:
-                    # train model with training set
-                    hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(X_train, lengths_train)
-                    logL = hmm_model.score(X_test, lengths_test)
+            try:
+                # train model with training set
+                hmm_model = GaussianHMM(n_components=num_states, n_iter=1000).fit(self.X, self.lengths)
+                logL = hmm_model.score(self.X, self.lengths)
 
-                    logL_list.append((num_states, logL, hmm_model))
+                logL_list.append((num_states, logL, hmm_model))
 
-                except Exception:
-                    # if it fails, will simply return a empty best model
-                    pass
+            except Exception:
+                # if it fails, it will try again with the next set of elements, or simply return an empty model
+                pass
 
 
         # now analyse each LogL against the others
