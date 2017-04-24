@@ -60,7 +60,6 @@ def recognize(models: dict, test_set: SinglesData):
 
 def show_errors(guesses, test_set):
 
-  no_of_errors = 0
   no_of_correct = 0
   no_of_words = 0
 
@@ -76,6 +75,7 @@ def show_errors(guesses, test_set):
       no_of_correct += 1
     else:
       if not header_printed:
+        
         print('\n*** These were the errors I found:')
         header_printed = True
 
@@ -84,17 +84,17 @@ def show_errors(guesses, test_set):
 
   print('===========================================')
 
-  perc_right = round(no_of_correct / no_of_words * 100,2)
+  wer = round( (no_of_words - no_of_correct) / no_of_words * 100,2)
 
   comment = ''
 
-  if perc_right > 90:
+  if wer < 20:
     comment = "Bloddy ledgend!"
-  elif perc_right > 70:
+  elif wer < 40:
     comment = "You rock"
-  elif perc_right > 50:
-    comment = "Get a grip, mate"
+  elif wer < 60:
+    comment = "You passed ... just"
   else:
     comment = "You suck!"
 
-  print('Guessed right: {} out of {}  ({}%) - Guess what? {} '.format(no_of_correct,no_of_words,perc_right,comment))
+  print('Your WER: {}%  You got {} out of {} right. Guess what? {} '.format(wer, no_of_correct,no_of_words,comment))

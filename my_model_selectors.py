@@ -76,10 +76,9 @@ class SelectorBIC(ModelSelector):
         """
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-        # TODO implement model selection based on BIC scores
+        # TODO implement model selection based on BIC scores - DONE!
         split_method = KFold()
 
-        # print('Number of sequences: {} '.format(len(self.sequences)))
 
         best_model = None
         best_num_components = self.min_n_components
@@ -89,8 +88,6 @@ class SelectorBIC(ModelSelector):
 
             # KFold split method will only work for sequences of 2 or more samples
             for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
-
-                # print("Train fold indices:{} Test fold indices:{}".format(cv_train_idx, cv_test_idx))  
 
                 # determine training set
                 X_train, lengths_train = combine_sequences(cv_train_idx, self.sequences)
@@ -114,7 +111,7 @@ class SelectorBIC(ModelSelector):
 
                             # new set of best numbers
                             best_num_components, best_bic, best_model = num_states, bic, hmm_model
-                            # print('Selected LogL {} , Num of steaes {} '.format(best_logL, best_num_components))
+
                     except Exception:
                         # if it fails, it will try again with the next set of elements, or simply return an empty model
                         pass
@@ -152,7 +149,6 @@ class SelectorBIC(ModelSelector):
                     # if it fails, will simply return a empty best model
                     pass
 
-        # print('Selected {} '.format(best_num_components))
         return best_model    
 
 
@@ -170,7 +166,7 @@ class SelectorDIC(ModelSelector):
         
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-        # TODO implement model selection based on DIC scores
+        # TODO implement model selection based on DIC scores - DONE!
         split_method = KFold()
 
         best_model = None
@@ -257,7 +253,7 @@ class SelectorCV(ModelSelector):
     def select(self):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-        # TODO implement model selection using CV
+        # TODO implement model selection using CV - DONE!
 
         split_method = KFold()
 
